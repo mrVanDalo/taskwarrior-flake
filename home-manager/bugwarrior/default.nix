@@ -52,12 +52,7 @@ in
   config = mkIf config.bugwarrior.enable {
     home.file.".config/bugwarrior/bugwarrior.toml".source =
       (pkgs.formats.toml { }).generate "bugwarriorrc.toml"
-        (
-          {
-            general.taskrc = pkgs.writeText "taskrc" "data.location=$HOME/.bugwarrior";
-          }
-          // config.bugwarrior.config
-        );
+        (config.bugwarrior.config);
     home.packages = [
       # todo install package from this flake
       pkgs.bugwarrior
