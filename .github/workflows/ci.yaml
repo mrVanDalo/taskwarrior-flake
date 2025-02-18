@@ -6,7 +6,7 @@ on:
     #- cron: "30 2/6 * * *" # not to frequent, GitHub only allows a few pulls per hour
 
 jobs:
-  update flake.lock:
+  update-flake-lock:
     runs-on: ubuntu-latest
     steps:
 
