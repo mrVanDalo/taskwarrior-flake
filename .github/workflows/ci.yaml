@@ -1,0 +1,41 @@
+name: Build all NixOS Configurations
+on:
+  workflow_dispatch: # allows manual triggering
+  schedule:
+    - cron: '0 0 * * 0' # runs weekly on Sunday at 00:00
+    #- cron: "30 2/6 * * *" # not to frequent, GitHub only allows a few pulls per hour
+
+jobs:
+  nix build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          clean: true
+
+      - uses: cachix/install-nix-action@v27
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+
+      - name: update nix flakes
+        run: nix flake update
+
+      - name: nix build bugwarrior
+        run: nix build .#bugwarrior
+
+      - name: nix build tasksh
+        run: nix build .#tasksh
+
+      - name: nix build taskwarrior-hooks
+        run: nix build .#taskwarrior-hooks
+
+      - name: commit & push
+        # only if all nix builds are fine we update our branch
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "Forgejo Action :robot:"
+
+          git diff --quiet && \
+          git diff --staged --quiet || \
+          (git commit -am ":arrow_up: nix flake update" && git push)
