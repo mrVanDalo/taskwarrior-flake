@@ -1,4 +1,4 @@
-name: Build all NixOS Configurations
+name: Update flake.lock
 on:
   workflow_dispatch: # allows manual triggering
   schedule:
@@ -6,9 +6,10 @@ on:
     #- cron: "30 2/6 * * *" # not to frequent, GitHub only allows a few pulls per hour
 
 jobs:
-  nix build:
+  update flake.lock:
     runs-on: ubuntu-latest
     steps:
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
