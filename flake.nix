@@ -11,7 +11,12 @@
   };
 
   outputs =
-    inputs@{ flake-parts, taskshell, ... }:
+    inputs@{
+      flake-parts,
+      taskshell,
+      self,
+      ...
+    }:
     flake-parts.lib.mkFlake { inherit inputs; } {
       imports = [
         ./nix/formatter.nix
@@ -32,11 +37,14 @@
           packages.taskwarrior-hooks = callPackage ./pkgs/taskwarrior-hooks { };
           packages.bugwarrior = callPackage ./pkgs/bugwarrior { };
         };
+
       flake = {
         # The usual flake attributes can be defined here, including system-
         # agnostic ones like nixosModule and system-enumerating ones, although
         # those are more easily expressed in perSystem.
-        hmModules.bugwarrior = import ./home-manager/bugwarrior;
+        hmModules.bugwarrior = {
+            imports = [ ./home-manager/bugwarrior ];
+          };
       };
     };
 }

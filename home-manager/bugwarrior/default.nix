@@ -53,10 +53,6 @@ in
     home.file.".config/bugwarrior/bugwarrior.toml".source =
       (pkgs.formats.toml { }).generate "bugwarriorrc.toml"
         (config.bugwarrior.config);
-    home.packages = [
-      # todo install package from this flake
-      pkgs.bugwarrior
-    ];
   };
 
 }
