@@ -5,6 +5,9 @@ on:
     - cron: '0 0 * * 0' # runs weekly on Sunday at 00:00
     #- cron: "30 2/6 * * *" # not to frequent, GitHub only allows a few pulls per hour
 
+permissions:
+  contents: write
+
 jobs:
   update-flake-lock:
     runs-on: ubuntu-latest
@@ -32,11 +35,14 @@ jobs:
         run: nix build .#taskwarrior-hooks
 
       - name: commit & push
-        # only if all nix builds are fine we update our branch
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "Forgejo Action :robot:"
-
-          git diff --quiet && \
-          git diff --staged --quiet || \
-          (git commit -am ":arrow_up: nix flake update" && git push)
+          
+          if [[ -n "$(git status --porcelain)" ]]; then
+            git add .
+            git commit -m ":arrow_up: nix flake update"
+            git push
+          else
+            echo "No changes to commit"
+          fi
