@@ -43,8 +43,8 @@
         # agnostic ones like nixosModule and system-enumerating ones, although
         # those are more easily expressed in perSystem.
         hmModules.bugwarrior = {
-            imports = [ ./home-manager/bugwarrior ];
-          };
+          imports = [ ./home-manager/bugwarrior ];
+        };
       };
     };
 }
