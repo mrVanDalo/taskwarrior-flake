@@ -6,19 +6,22 @@
 }:
 
 rustPlatform.buildRustPackage rec {
+
   name = "taskwarrior-hooks-${version}";
-  version = "0.2.2";
+
+  version = "0.2.4";
+
   src = fetchFromGitHub {
     owner = "mrVanDalo";
     repo = "taskwarrior-hooks";
     rev = "${version}";
-    sha256 = "1mj0k6ykac332667315kqrvg37j8r8078g48nafv7ini6lw8djas";
+    sha256 = "sha256-mdRBg10WszTEJXIkPXM+kPfjysFi8pqF+V7H6ExMH+Y=";
   };
 
-  cargoSha256 = "1panzqb7nfv3w92ij7pnczkqmcidzlr4pra6a0vcqd65j1m3s4wk";
-  #cargoSha256 = "0l4sa5c1pfjdlbdxrd61wd2qij4zaf8rx1xqac80jicly9rf3859";
-  #cargoSha256 = "1ijnh2ank9slmfglw4yhnycl11x26m94m2hiq3hcasmbs6c39zj5";
-  #verifyCargoDeps = true;
+  useFetchCargoVendor = true;
+
+  #cargoHash = lib.fakeHash;
+  cargoHash = "sha256-+RBwR7O1V8oQgvNVMIGcXeADtGEDZN154NjiY4I40KE=";
 
   meta = with lib; {
     description = "A fast line-oriented regex search tool, similar to ag and ack";

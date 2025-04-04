@@ -4,7 +4,7 @@ _: {
     {
       devShells = {
         default = pkgs.mkShell {
-          inputsFrom = [ self'.packages.default ];
+          #inputsFrom = [ self'.packages.default ];
           packages = [
             self'.formatter.outPath
           ];
