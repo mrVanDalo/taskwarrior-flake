@@ -32,18 +32,24 @@ jobs:
         run: nix flake update
 
       - name: nix build bugwarrior
-        run: nix build .#bugwarrior | cachix push mrvandalo-taskwarrior
+        run: |
+          set -o pipefail
+          nix build .#bugwarrior | cachix push mrvandalo-taskwarrior
 
       - name: nix build tasksh
-        run: nix build .#tasksh | cachix push mrvandalo-taskwarrior
+        run: |
+          set -o pipefail
+          nix build .#tasksh | cachix push mrvandalo-taskwarrior
 
       - name: nix build taskwarrior-hooks
-        run: nix build .#taskwarrior-hooks | cachix push mrvandalo-taskwarrior
+        run: |
+          set -o pipefail
+          nix build .#taskwarrior-hooks | cachix push mrvandalo-taskwarrior
 
       - name: commit & push
         run: |
           git config --local user.email "action@github.com"
-          git config --local user.name "Forgejo Action :robot:"
+          git config --local user.name "GitHub Action :robot:"
 
           if [[ -n "$(git status --porcelain)" ]]; then
             git add .
