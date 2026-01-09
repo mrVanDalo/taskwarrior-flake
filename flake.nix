@@ -17,34 +17,90 @@
       self,
       ...
     }:
-    flake-parts.lib.mkFlake { inherit inputs; } {
-      imports = [
-        ./nix/formatter.nix
-        ./nix/devshells.nix
-      ];
-      systems = [
-        "x86_64-linux"
-        "aarch64-linux"
-        "aarch64-darwin"
-        "x86_64-darwin"
-      ];
+    flake-parts.lib.mkFlake { inherit inputs; } (
+      top@{
+        config,
+        lib,
+        inputs,
+        ...
+      }:
+      {
+        imports = [
+          ./nix/formatter.nix
+          ./nix/devshells.nix
+        ];
+        systems = [
+          "x86_64-linux"
+          "aarch64-linux"
+          "aarch64-darwin"
+          "x86_64-darwin"
+        ];
 
-      perSystem =
-        { pkgs, system, ... }:
-        with pkgs;
-        {
-          packages.tasksh = taskshell.packages.${system}.default;
-          packages.taskwarrior-hooks = callPackage ./pkgs/taskwarrior-hooks { };
-          packages.bugwarrior = callPackage ./pkgs/bugwarrior { };
-        };
+        perSystem =
+          {
+            pkgs,
+            system,
+            self',
+            ...
+          }:
+          {
+            packages.taskchampion-sync-server = pkgs.taskchampion-sync-server;
+            packages.taskwarrior = pkgs.taskwarrior3;
+            packages.tasksh = taskshell.packages.${system}.default;
+            packages.taskwarrior-hooks = pkgs.callPackage ./pkgs/taskwarrior-hooks { };
+            packages.bugwarrior = pkgs.callPackage ./pkgs/bugwarrior { };
 
-      flake = {
-        # The usual flake attributes can be defined here, including system-
-        # agnostic ones like nixosModule and system-enumerating ones, although
-        # those are more easily expressed in perSystem.
-        hmModules.bugwarrior = {
-          imports = [ ./home-manager/bugwarrior ];
-        };
-      };
-    };
+            checks = {
+              #taskchampion-sync-server = pkgs.nixosTests.taskchampion-sync-server;
+
+              # Test that overlay works by building a minimal NixOS config with it
+              overlay-test =
+                (inputs.nixpkgs.lib.nixosSystem {
+                  inherit system;
+                  modules = [
+                    (
+                      { pkgs, ... }:
+                      {
+                        nixpkgs.overlays = [ top.self.overlays.default ];
+                        boot.loader.grub.enable = false;
+                        fileSystems."/" = {
+                          device = "none";
+                          fsType = "tmpfs";
+                        };
+                        system.stateVersion = "25.11";
+
+                        environment.systemPackages = with pkgs; [
+                          #taskchampion-sync-server
+                          #taskwarrior
+                          tasksh
+                          taskwarrior-hooks
+                          bugwarrior
+                        ];
+                      }
+                    )
+                  ];
+                }).config.system.build.toplevel;
+            };
+
+          };
+
+        flake =
+          { ... }:
+          {
+
+            overlays.default = final: prev: {
+              taskchampion-sync-server = self.packages.${final.system}.taskchampion-sync-server;
+              taskwarrior = self.packages.${final.system}.taskwarrior;
+              tasksh = self.packages.${final.system}.tasksh;
+              taskwarrior-hooks = self.packages.${final.system}.taskwarrior-hooks;
+              bugwarrior = self.packages.${final.system}.bugwarrior;
+            };
+
+            hmModules.bugwarrior = {
+              imports = [ ./home-manager/bugwarrior ];
+            };
+
+          };
+      }
+    );
 }
