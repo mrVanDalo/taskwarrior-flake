@@ -2,13 +2,21 @@
 
 ## Project Overview
 
-A **specialized Nix channel** for Taskwarrior v3 tools that tracks `nixos-unstable` as closely as possible while guaranteeing stability. Solves the "fresh but broken" problem of unstable channels.
+**Maintenance**: Keep this file up to date when modifying the project,
+especially the **Structure** section when adding/removing files.
 
-**How it works**: CI updates `flake.lock` weekly, but **only commits if all tests pass**. Users get the latest packages that are proven to work together.
+A **specialized Nix channel** for Taskwarrior v3 tools that tracks
+`nixos-unstable` as closely as possible while guaranteeing stability. Solves the
+"fresh but broken" problem of unstable channels.
 
-**Use case**: Add this flake as input to your NixOS configuration for always-fresh, always-tested taskwarrior tools.
+**How it works**: CI updates `flake.lock` weekly, but **only commits if all
+tests pass**. Users get the latest packages that are proven to work together.
 
-**Author**: Ingolf Wagner | **Repo**: https://github.com/mrVanDalo/taskwarrior-flake
+**Use case**: Add this flake as input to your NixOS configuration for
+always-fresh, always-tested taskwarrior tools.
+
+**Author**: Ingolf Wagner | **Repo**:
+https://github.com/mrVanDalo/taskwarrior-flake
 
 ## Quick Commands
 
@@ -34,13 +42,13 @@ home-manager/
 
 ## Packages Exported
 
-| Package | Description |
-|---------|-------------|
-| `taskwarrior` | Taskwarrior v3 |
-| `taskchampion-sync-server` | Sync server |
-| `tasksh` | Custom taskshell (no hardcoded colors) |
-| `taskwarrior-hooks` | Rust hooks library |
-| `bugwarrior` | Issue tracker to Taskwarrior |
+| Package                    | Description                            |
+| -------------------------- | -------------------------------------- |
+| `taskwarrior`              | Taskwarrior v3                         |
+| `taskchampion-sync-server` | Sync server                            |
+| `tasksh`                   | Custom taskshell (no hardcoded colors) |
+| `taskwarrior-hooks`        | Rust hooks library                     |
+| `bugwarrior`               | Issue tracker to Taskwarrior           |
 
 ## Key Technical Details
 
@@ -53,17 +61,21 @@ home-manager/
 ## Conventions
 
 ### Git
+
 - **ALWAYS** commit without signing: `--no-gpg-sign`
-- Use Gitmoji prefixes: `:sparkles:` (feature), `:bug:` (fix), `:arrow_up:` (deps), `:construction_worker:` (CI)
+- Use Gitmoji prefixes: `:sparkles:` (feature), `:bug:` (fix), `:arrow_up:`
+  (deps), `:construction_worker:` (CI)
 - Main branch: `main`
 
 ### Nix Code
+
 - Use `callPackage` pattern for packages
 - `rustPlatform.buildRustPackage` for Rust
 - Modular structure: formatters in `./nix/`, packages in `./pkgs/`
 - Pass `top` context for accessing `top.self.overlays.default`
 
 ### Adding a Package
+
 1. Create `pkgs/<name>/default.nix`
 2. Add to overlay in `flake.nix`
 3. Add test if needed in `flake.nix` checks
@@ -71,11 +83,14 @@ home-manager/
 ## CI Workflow (The Core Mechanism)
 
 Runs weekly (Sunday 00:00 UTC) and on manual trigger:
+
 1. `nix flake update` - Pull latest from nixos-unstable
 2. `nix flake check` - **All tests must pass**
 3. Only commits `flake.lock` if tests succeed
 
-This ensures the committed `flake.lock` always represents a **tested, working state**. If upstream breaks something, the update is rejected and users stay on the last known-good version.
+This ensures the committed `flake.lock` always represents a **tested, working
+state**. If upstream breaks something, the update is rejected and users stay on
+the last known-good version.
 
 ## Flake Architecture
 
@@ -88,6 +103,7 @@ perSystem = { pkgs, top, ... }: {
 ```
 
 Home Manager module pattern:
+
 ```nix
 services.bugwarrior = {
   enable = true;
