@@ -21,39 +21,21 @@ jobs:
         with:
           nix_path: nixpkgs=channel:nixos-unstable
 
-      # https://nix.dev/guides/recipes/continuous-integration-github-actions
-      - uses: cachix/cachix-action@v14
-        with:
-          name: mrvandalo-taskwarrior
-          # If you chose API tokens for write access OR if you have a private cache
-          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-
       - name: update nix flakes
         run: nix flake update
 
-      - name: nix build bugwarrior
-        run: |
-          set -o pipefail
-          nix build .#bugwarrior | cachix push mrvandalo-taskwarrior
-
-      - name: nix build tasksh
-        run: |
-          set -o pipefail
-          nix build .#tasksh | cachix push mrvandalo-taskwarrior
-
-      - name: nix build taskwarrior-hooks
-        run: |
-          set -o pipefail
-          nix build .#taskwarrior-hooks | cachix push mrvandalo-taskwarrior
+      - name: nix flake check
+        run: nix flake check
 
       - name: commit & push
+        if: success()
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action :robot:"
 
           if [[ -n "$(git status --porcelain)" ]]; then
             git add .
-            git commit -m ":arrow_up: nix flake update"
+            git commit --no-gpg-sign -m ":arrow_up: nix flake update"
             git push
           else
             echo "No changes to commit"
