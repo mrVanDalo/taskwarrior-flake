@@ -26,11 +26,8 @@ jobs:
         if: github.event_name != 'push'
         run: nix flake update
 
-      - name: install nix-fast-build
-        run: nix profile install nixpkgs#nix-fast-build
-
-      - name: nix-fast-build
-        run: nix-fast-build --no-nom -j 1 --no-link
+      - name: nix flake check
+        run: nix flake check
 
       - name: commit & push
         if: success() && github.event_name != 'push'
