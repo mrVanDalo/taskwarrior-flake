@@ -1,6 +1,7 @@
 name: Update flake.lock
 on:
   workflow_dispatch: # allows manual triggering
+  push:
   schedule:
     - cron: "0 0 * * 0" # runs weekly on Sunday at 00:00
 #- cron: "30 2/6 * * *" # not to frequent, GitHub only allows a few pulls per hour
@@ -22,13 +23,17 @@ jobs:
           nix_path: nixpkgs=channel:nixos-unstable
 
       - name: update nix flakes
+        if: github.event_name != 'push'
         run: nix flake update
 
-      - name: nix flake check
-        run: nix flake check
+      - name: install nix-fast-build
+        run: nix profile install nixpkgs#nix-fast-build
+
+      - name: nix-fast-build
+        run: nix-fast-build --no-nom -j 1 --no-link
 
       - name: commit & push
-        if: success()
+        if: success() && github.event_name != 'push'
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action :robot:"
