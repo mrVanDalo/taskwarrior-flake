@@ -27,7 +27,6 @@
       {
         imports = [
           ./nix/formatter.nix
-          ./nix/devshells.nix
         ];
         systems = [
           "x86_64-linux"
