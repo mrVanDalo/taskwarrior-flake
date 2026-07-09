@@ -45,9 +45,23 @@
           {
             packages.taskchampion-sync-server = pkgs.taskchampion-sync-server;
             packages.taskwarrior = pkgs.taskwarrior3;
-            packages.tasksh = taskshell.packages.${system}.default;
+            packages.tasksh = (taskshell.packages.${system}.default).overrideAttrs (old: {
+              cmakeFlags = (old.cmakeFlags or [ ]) ++ [ "-DCMAKE_POLICY_VERSION_MINIMUM=3.5" ];
+              postPatch = (old.postPatch or "") + ''
+                # Fix CMake policy compatibility with CMake >= 4.0
+                substituteInPlace test/CMakeLists.txt \
+                  --replace-fail 'cmake_policy(SET CMP0037 OLD)' 'cmake_policy(SET CMP0037 NEW)'
+              '';
+            });
             packages.taskwarrior-hooks = pkgs.callPackage ./pkgs/taskwarrior-hooks { };
-            packages.bugwarrior = pkgs.callPackage ./pkgs/bugwarrior { };
+            packages.bugwarrior = pkgs.callPackage ./pkgs/bugwarrior {
+              pyac = pkgs.python3Packages.callPackage ./pkgs/pyac { };
+              kanboard = pkgs.python3Packages.callPackage ./pkgs/kanboard { };
+              phabricator = pkgs.python3Packages.callPackage ./pkgs/phabricator { };
+            };
+            packages.pyac = pkgs.python3Packages.callPackage ./pkgs/pyac { };
+            packages.kanboard = pkgs.python3Packages.callPackage ./pkgs/kanboard { };
+            packages.phabricator = pkgs.python3Packages.callPackage ./pkgs/phabricator { };
 
             checks = {
               #taskchampion-sync-server = pkgs.nixosTests.taskchampion-sync-server;
@@ -74,6 +88,9 @@
                           tasksh
                           taskwarrior-hooks
                           bugwarrior
+                          pyac
+                          kanboard
+                          phabricator
                         ];
                       }
                     )
@@ -93,6 +110,9 @@
               tasksh = self.packages.${final.system}.tasksh;
               taskwarrior-hooks = self.packages.${final.system}.taskwarrior-hooks;
               bugwarrior = self.packages.${final.system}.bugwarrior;
+              pyac = self.packages.${final.system}.pyac;
+              kanboard = self.packages.${final.system}.kanboard;
+              phabricator = self.packages.${final.system}.phabricator;
             };
 
             hmModules.bugwarrior = {
