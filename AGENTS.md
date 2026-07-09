@@ -54,7 +54,8 @@ home-manager/
 
 - **Nix**: Uses `flake-parts` architecture, `nixos-unstable` channel
 - **Platforms**: x86_64-linux, aarch64-linux, aarch64-darwin, x86_64-darwin
-- **Python**: Pins `python311Packages` throughout
+- **Python**: Uses `python3Packages` (nixpkgs default) for bugwarrior; avoids
+  pinning to a specific minor version to prevent upstream incompatibilities
 - **Overlay**: Exports `overlays.default` for NixOS integration
 - **Testing**: `overlay-test` validates overlay works in NixOS configs
 
